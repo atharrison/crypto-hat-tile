@@ -1,0 +1,118 @@
+import numpy as np
+import random
+
+class HatTile:
+    def __init__(self, vertices):
+        self.vertices = np.array(vertices)
+
+    def random_rotation(self):
+        """
+        This implementation creates a rotation matrix based on a random angle of either pi/2 or 3*pi/2, 
+        applies the matrix to each vertex individually, 
+        and then returns a new HatTile object with the rotated vertices.
+        """
+        theta = np.random.choice([np.pi/2, 3*np.pi/2])
+        c, s = np.cos(theta), np.sin(theta)
+        rotation_matrix = np.array([[c, -s], [s, c]])
+        rotated_vertices = np.empty_like(self.vertices)
+        for i, vertex in enumerate(self.vertices):
+            rotated_vertices[i] = rotation_matrix @ vertex
+        return HatTile(rotated_vertices.tolist())
+
+    def __getitem__(self, index):
+        return self.vertices[index]
+
+HAT_TILE = HatTile([[0, 1], [1, 1], [1, 0], [0, 0], [0.5, -1],
+                    [1.5, -1], [2, 0], [2, 1], [1.5, 2],
+                    [0.5, 2], [0, 1]])
+
+def hat_tiles_algorithm(tile_size, iterations):
+    tiles = np.empty((tile_size, tile_size), dtype=object)
+    tiles[:] = None
+
+    # Set the center tile randomly
+    tiles[tile_size // 2][tile_size // 2] = HAT_TILE.random_rotation()
+
+    # Try to place each subsequent tile
+    for _ in range(iterations):
+        for i in range(tile_size):
+            for j in range(tile_size):
+                if tiles[i][j] is not None:
+                    continue
+                for di, dj in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                    ni, nj = i + di, j + dj
+                    if ni < 0 or ni >= tile_size or nj < 0 or nj >= tile_size:
+                        continue
+                    if tiles[ni][nj] is not None:
+                        valid = False
+                        for _ in range(3):
+                            candidate = HAT_TILE.random_rotation()
+                            match = True
+                            for k, l in [(0, 1), (1, 2), (2, 3), (3, 0)]:
+                                nk, nl = ni + k - 1, nj + l - 1
+                                if nk < 0 or nk >= tile_size or nl < 0 or nl >= tile_size:
+                                    match = False
+                                    break
+                                if tiles[nk][nl] is None:
+                                    match = False
+                                    break
+                                if not np.array_equal(tiles[nk][nl][(l - k) % 4],
+                                                      candidate[(l - k + 2) % 4]):
+                                    match = False
+                                    break
+                            if match:
+                                tiles[ni][nj] = candidate
+                                valid = True
+                                break
+                        if not valid:
+                            tiles[i][j] = None
+                            break
+
+
+    return tiles
+
+
+
+def hat_tiles_algorithm_old1(tile_size, iterations):
+    tiles = np.empty((tile_size, tile_size), dtype=object)
+    tiles[:] = None
+
+    # Set the center tile randomly
+    tiles[tile_size // 2][tile_size // 2] = HAT_TILE.random_rotation()
+
+    # Try to place each subsequent tile
+    for _ in range(iterations):
+        for i in range(tile_size):
+            for j in range(tile_size):
+                if tiles[i][j] is not None:
+                    continue
+                for di, dj in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                    ni, nj = i + di, j + dj
+                    if ni < 0 or ni >= tile_size or nj < 0 or nj >= tile_size:
+                        continue
+                    if tiles[ni][nj] is None:
+                        valid = False
+                        for _ in range(3):
+                            candidate = HAT_TILE.random_rotation()
+                            match = True
+                            for k, l in [(0, 1), (1, 2), (2, 3), (3, 0)]:
+                                nk, nl = ni + k - 1, nj + l - 1
+                                if nk < 0 or nk >= tile_size or nl < 0 or nl >= tile_size:
+                                    match = False
+                                    break
+                                if tiles[nk][nl] is None:
+                                    match = False
+                                    break
+                                if not np.array_equal(tiles[nk][nl][(l - k) % 4],
+                                                      candidate[(l - k + 2) % 4]):
+                                    match = False
+                                    break
+                            if match:
+                                tiles[ni][nj] = candidate
+                                valid = True
+                                break
+                        if not valid:
+                            tiles[i][j] = None
+                            break
+
+    return tiles
