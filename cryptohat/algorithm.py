@@ -12,6 +12,7 @@ class HatTile:
         and then returns a new HatTile object with the rotated vertices.
         """
         theta = np.random.choice([np.pi/2, 3*np.pi/2])
+        print(f"Generating random angle as {theta}")
         c, s = np.cos(theta), np.sin(theta)
         rotation_matrix = np.array([[c, -s], [s, c]])
         rotated_vertices = np.empty_like(self.vertices)

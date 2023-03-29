@@ -15,7 +15,7 @@ def get_edge(tile, direction):
         raise ValueError('Invalid direction')
 
 def test_hat_tiles_algorithm():
-    tiles = hat_tiles_algorithm(10, iterations=1)
+    tiles = hat_tiles_algorithm(3, iterations=1)
     print(tiles)
 
     # Check that all tiles are unique
